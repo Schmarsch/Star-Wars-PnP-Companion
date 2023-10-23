@@ -10,7 +10,7 @@ const navbar = async () => {
     <div className="navbar glass rounded-2xl mb-2">
       <div className="flex-1">
         <Link href="/" className="btn btn-ghost text-xl normal-case text-red-950">
-          Star Wars - DnD Companion
+          Star Wars - PnP Companion
         </Link>
       </div>
       <div className="flex-none">

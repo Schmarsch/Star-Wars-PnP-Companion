@@ -12,8 +12,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Star Wars - DnD Companion",
-  description: "An app to help you play a Star Wars DnD campaign",
+  title: "Star Wars - PnP Companion",
+  description: "An app to help you play a Star Wars PnP campaign",
   icons: [{ rel: "icon", url: "/favicon(white).ico" }],
 };
 
