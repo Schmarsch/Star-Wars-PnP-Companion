@@ -102,6 +102,9 @@ model Character {
   criticalInjuries        CriticalInjurie[]
   talentAndSpecialization talentAndSpecialization[]
 
+  TotalXP     Int @default(0)
+  AvailableXP Int @default(0)
+
   user           User        @relation(fields: [userId], references: [id])
   userId         String
   equipmentLogId Int
