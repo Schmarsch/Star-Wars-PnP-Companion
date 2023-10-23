@@ -2,72 +2,284 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "sqlite"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
-}
-
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
+  provider = "sqlite"
+  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
 }
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? // @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? // @db.Text
+  access_token      String? // @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? // @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+  id            String      @id @default(cuid())
+  name          String?
+  email         String?     @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  characters    Character[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
+}
+
+model Character {
+  // basic info
+  id      String @id @default(cuid())
+  name    String
+  species String
+  career  String
+
+  forceRating Int
+
+  // Character Description
+  gender  String
+  age     Int
+  height  String
+  build   String
+  hair    String
+  eyes    String
+  notable String
+
+  health            Int
+  characteristics   Characteristics  @relation(fields: [characteristicsId], references: [id])
+  characteristicsId Int              @unique
+  skills            Skills           @relation(fields: [skillsId], references: [id])
+  skillsId          Int              @unique
+  combatSkills      CombatSkills     @relation(fields: [combatSkillsId], references: [id])
+  combatSkillsId    Int              @unique
+  KnowledgeSkills   KnowledgeSkills? @relation(fields: [knowledgeSkillsId], references: [id])
+  knowledgeSkillsId Int              @unique
+
+  soak            Int
+  woundsThreshold Int
+  woundsCurrent   Int
+  strainThreshold Int
+  strainCurrent   Int
+  defenseRanged   Int
+  defenseMelee    Int
+
+  motivations             Motivation[]
+  equipmentLog            EquipmentLog?
+  morality                Morality?
+  criticalInjuries        CriticalInjurie[]
+  talentAndSpecialization talentAndSpecialization[]
+
+  user           User        @relation(fields: [userId], references: [id])
+  userId         String
+  equipmentLogId Int
+  ForcePower     ForcePower?
+}
+
+model Characteristics {
+  id        Int @id @default(autoincrement())
+  Brawn     Int
+  Agility   Int
+  Intellect Int
+  Cunning   Int
+  Willpower Int
+  Presence  Int
+
+  Character Character?
+}
+
+model Skills {
+  id                Int @id @default(autoincrement())
+  Astrogation       Int
+  Athletics         Int
+  Charm             Int
+  Coercion          Int
+  Computers         Int
+  Cool              Int
+  Coordination      Int
+  Deception         Int
+  Discipline        Int
+  Knowledge         Int
+  Leadership        Int
+  Mechanics         Int
+  Medicine          Int
+  Negotiation       Int
+  Perception        Int
+  PilotingPlanetary Int
+  ResilienceSpace   Int
+  Skulduggery       Int
+  Stealth           Int
+  Streetwise        Int
+  Survival          Int
+  Vigilance         Int
+
+  Character Character?
+}
+
+model CombatSkills {
+  id          Int @id @default(autoincrement())
+  Brawl       Int
+  Gunnery     Int
+  Lightsaber  Int
+  Melee       Int
+  RangedLight Int
+  RangedHeavy Int
+
+  Character Character?
+}
+
+model KnowledgeSkills {
+  id         Int @id @default(autoincrement())
+  CoreWorlds Int
+  Education  Int
+  Lore       Int
+  OuterRim   Int
+  Underworld Int
+  Xenology   Int
+
+  Character Character?
+}
+
+model Weapon {
+  id       String @id @default(cuid())
+  name     String
+  skill    String
+  damage   String
+  critical String
+  range    String
+  encum    Int
+  hp       Int
+  price    Int
+  rarity   Int
+  special  String
+
+  EquipmentLog   EquipmentLog? @relation(fields: [equipmentLogId], references: [id])
+  equipmentLogId Int?
+}
+
+model Armor {
+  id String @id @default(cuid())
+
+  name    String
+  defense Int
+  soak    Int
+  price   Int
+  encum   Int
+  hp      Int
+  rarity  Int
+
+  EquipmentLog   EquipmentLog? @relation(fields: [equipmentLogId], references: [id])
+  equipmentLogId Int?
+}
+
+model Gear {
+  id Int @id @default(autoincrement())
+
+  name   String
+  price  Int
+  enucm  Int
+  rarity Int
+
+  EquipmentLog   EquipmentLog? @relation(fields: [equipmentLogId], references: [id])
+  equipmentLogId Int?
+}
+
+model Motivation {
+  id   Int    @id @default(autoincrement())
+  type String
+  text String
+
+  Character   Character? @relation(fields: [characterId], references: [id])
+  characterId String?
+}
+
+model Morality {
+  id Int @id @default(autoincrement())
+
+  EmotionalStrength String
+  EmotionalWeakness String
+  Conflict          Int
+  Morality          Int
+
+  Character   Character? @relation(fields: [characterId], references: [id])
+  characterId String?    @unique
+}
+
+model EquipmentLog {
+  id Int @id @default(autoincrement())
+
+  weapons Weapon[]
+  armor   Armor[]
+  gear    Gear[]
+
+  Character   Character? @relation(fields: [characterId], references: [id])
+  characterId String?    @unique
+}
+
+model CriticalInjurie {
+  id Int @id @default(autoincrement())
+
+  name        String
+  description String
+  severity    String
+  result      String
+  healTime    String
+  permanent   Boolean
+
+  Character   Character? @relation(fields: [characterId], references: [id])
+  characterId String?
+}
+
+model talentAndSpecialization {
+  id Int @id @default(autoincrement())
+
+  name    String
+  page    Int
+  summary String
+
+  Character   Character? @relation(fields: [characterId], references: [id])
+  characterId String?
+}
+
+model ForcePower {
+  id Int @id @default(autoincrement())
+
+  // As I still need to implement Force Power Trees, I'll just leave this as a string for now
+  name        String
+  description String
+
+  Character   Character? @relation(fields: [characterId], references: [id])
+  characterId String?    @unique
 }
