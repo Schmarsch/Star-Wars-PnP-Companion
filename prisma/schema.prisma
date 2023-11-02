@@ -49,7 +49,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  characters    Character[]
+  Character     Character[]
 }
 
 model VerificationToken {
@@ -61,228 +61,300 @@ model VerificationToken {
 }
 
 model Character {
-  // basic info
-  id      String @id @default(cuid())
-  name    String
-  species String
-  career  String
+  id   String @id @default(cuid())
+  name String
 
-  forceRating Int
+  ClassLevels ClassLevels[]
+  Species     Species       @relation(fields: [speciesId], references: [id])
 
-  // Character Description
-  gender  String
-  age     Int
-  height  String
-  build   String
-  hair    String
-  eyes    String
-  notable String
+  ProficiencyBonus Int
+  Initiative       Int
 
-  health            Int
-  characteristics   Characteristics  @relation(fields: [characteristicsId], references: [id])
-  characteristicsId Int              @unique
-  skills            Skills           @relation(fields: [skillsId], references: [id])
-  skillsId          Int              @unique
-  combatSkills      CombatSkills     @relation(fields: [combatSkillsId], references: [id])
-  combatSkillsId    Int              @unique
-  KnowledgeSkills   KnowledgeSkills? @relation(fields: [knowledgeSkillsId], references: [id])
-  knowledgeSkillsId Int              @unique
+  // Ability Scores
+  Strength     Int
+  Dexterity    Int
+  Constitution Int
+  Intelligence Int
+  Wisdom       Int
+  Charisma     Int
 
-  soak            Int
-  woundsThreshold Int
-  woundsCurrent   Int
-  strainThreshold Int
-  strainCurrent   Int
-  defenseRanged   Int
-  defenseMelee    Int
+  // Saving Throws
+  savingThrowProficiencies String // split by comma
 
-  motivations             Motivation[]
-  equipmentLog            EquipmentLog?
-  morality                Morality?
-  criticalInjuries        CriticalInjurie[]
-  talentAndSpecialization talentAndSpecialization[]
+  // Skills
+  skillProficiencies String // split by comma
 
-  TotalXP     Int @default(0)
-  AvailableXP Int @default(0)
+  // Health
+  maxHitPoints Int
+  currentHP    Int
+  tempHP       Int
+  hitDice      Int
+  hitDiceTotal Int
 
-  user           User        @relation(fields: [userId], references: [id])
-  userId         String
-  equipmentLogId Int
-  ForcePower     ForcePower?
+  // Death Saves
+  deathSavesSuccesses Int
+  deathSavesFailures  Int
+
+  // Advantages, Resistances, and Immunities
+  advantageAgainstSavingThrows String // split by comma
+  advantageAgainstSkills       String // split by comma
+  resistanceToDamageTypes      String // split by comma
+
+  // Armor
+  armorClass             Int
+  mediumArmorProficiency Boolean
+  armor                  Armor?  @relation(fields: [armorId], references: [id])
+  armorId                Int?
+
+  // Weapons
+  weaponProficiencies String // split by comma
+  weapons             Weapon[]
+
+  // Character Data
+  placeOfBirth String
+
+  age    Int
+  gender String
+  height String
+  weight String
+  size   String
+  hair   String
+  eyes   String
+  skin   String
+
+  appearance         String
+  personality        String
+  ideals             String
+  bonds              String
+  flaws              String
+  backgroundFeatures String
+  backstory          String
+  languages          String // split by comma
+  features           String // split by comma
+
+  // Valuables
+  credits         Int
+  gemsAndTreasure String // split by comma
+
+  // Equipment
+  Storage String // split by comma -- Just a string of the item names, the items themselves are stored in the inventory
+  gear    Equipment[]
+
+  // Powers
+  techAttackModifier  Int
+  techSaveDC          Int
+  forceAttackModifier Int
+  forceSaveDC         Int
+  techPoints          Int
+  techPointsUsed      Int
+  forcePoints         Int
+  forcePointsUsed     Int
+  forcePowers         ForcePower[]
+  techPowers          TechPower[]
+
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  speciesId Int
 }
 
-model Characteristics {
-  id        Int @id @default(autoincrement())
-  Brawn     Int
-  Agility   Int
-  Intellect Int
-  Cunning   Int
-  Willpower Int
-  Presence  Int
-
-  Character Character?
+model Class {
+  id                       Int           @id @default(autoincrement())
+  name                     String
+  description              String
+  hitDie                   Int
+  primaryAbility           String
+  savingThrowProficiencies String // split by comma
+  startingWealth           String
+  ClassLevels              ClassLevels[]
 }
 
-model Skills {
-  id                Int @id @default(autoincrement())
-  Astrogation       Int
-  Athletics         Int
-  Charm             Int
-  Coercion          Int
-  Computers         Int
-  Cool              Int
-  Coordination      Int
-  Deception         Int
-  Discipline        Int
-  Knowledge         Int
-  Leadership        Int
-  Mechanics         Int
-  Medicine          Int
-  Negotiation       Int
-  Perception        Int
-  PilotingPlanetary Int
-  ResilienceSpace   Int
-  Skulduggery       Int
-  Stealth           Int
-  Streetwise        Int
-  Survival          Int
-  Vigilance         Int
-
-  Character Character?
-}
-
-model CombatSkills {
-  id          Int @id @default(autoincrement())
-  Brawl       Int
-  Gunnery     Int
-  Lightsaber  Int
-  Melee       Int
-  RangedLight Int
-  RangedHeavy Int
-
-  Character Character?
-}
-
-model KnowledgeSkills {
-  id         Int @id @default(autoincrement())
-  CoreWorlds Int
-  Education  Int
-  Lore       Int
-  OuterRim   Int
-  Underworld Int
-  Xenology   Int
-
-  Character Character?
-}
-
-model Weapon {
-  id       String @id @default(cuid())
-  name     String
-  skill    String
-  damage   String
-  critical String
-  range    String
-  encum    Int
-  hp       Int
-  price    Int
-  rarity   Int
-  special  String
-
-  EquipmentLog   EquipmentLog? @relation(fields: [equipmentLogId], references: [id])
-  equipmentLogId Int?
-}
-
-model Armor {
-  id String @id @default(cuid())
-
-  name    String
-  defense Int
-  soak    Int
-  price   Int
-  encum   Int
-  hp      Int
-  rarity  Int
-
-  EquipmentLog   EquipmentLog? @relation(fields: [equipmentLogId], references: [id])
-  equipmentLogId Int?
-}
-
-model Gear {
+model ClassLevels {
   id Int @id @default(autoincrement())
 
-  name   String
-  price  Int
-  enucm  Int
-  rarity Int
+  level      Int
+  class      Class       @relation(fields: [classId], references: [id])
+  classId    Int
+  Archetypes Archetype[]
 
-  EquipmentLog   EquipmentLog? @relation(fields: [equipmentLogId], references: [id])
-  equipmentLogId Int?
+  Character   Character @relation(fields: [characterId], references: [id])
+  characterId String
 }
 
-model Motivation {
-  id   Int    @id @default(autoincrement())
-  type String
-  text String
-
-  Character   Character? @relation(fields: [characterId], references: [id])
-  characterId String?
-}
-
-model Morality {
+model Species {
   id Int @id @default(autoincrement())
 
-  EmotionalStrength String
-  EmotionalWeakness String
-  Conflict          Int
-  Morality          Int
+  name String
 
-  Character   Character? @relation(fields: [characterId], references: [id])
-  characterId String?    @unique
+  // Visual Characteristics
+  skinColors   String // split by comma
+  hairColors   String // split by comma
+  eyeColors    String // split by comma
+  distinctions String // split by comma
+
+  // Physical Characteristics
+  averageHeight String
+  averageWeight String
+
+  // Sociocultural Characteristics
+  language  String
+  homeworld String
+
+  // Descriptions
+  biologyAndAppearance String
+  societyAndCulture    String
+
+  // Traits
+  abilityScoreIncrease String // split by comma, format: "ability:amount"
+  age                  String
+  alignment            String
+  size                 String
+  speed                String
+  Traits               Traits[]
+  Character            Character[]
 }
 
-model EquipmentLog {
-  id Int @id @default(autoincrement())
-
-  weapons Weapon[]
-  armor   Armor[]
-  gear    Gear[]
-
-  Character   Character? @relation(fields: [characterId], references: [id])
-  characterId String?    @unique
-}
-
-model CriticalInjurie {
+model Traits {
   id Int @id @default(autoincrement())
 
   name        String
   description String
-  severity    String
-  result      String
-  healTime    String
-  permanent   Boolean
-
-  Character   Character? @relation(fields: [characterId], references: [id])
-  characterId String?
+  species     Species[]
 }
 
-model talentAndSpecialization {
+model Archetype {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+
+  ArchetypeAdvancement ArchetypeAdvancement[]
+  ClassLevels          ClassLevels?           @relation(fields: [classLevelsId], references: [id])
+  classLevelsId        Int?
+}
+
+model ArchetypeAdvancement {
   id Int @id @default(autoincrement())
 
-  name    String
-  page    Int
-  summary String
+  name        String
+  description String
 
-  Character   Character? @relation(fields: [characterId], references: [id])
-  characterId String?
+  level       Int
+  archetype   Archetype @relation(fields: [archetypeId], references: [id])
+  archetypeId Int
+}
+
+model Armor {
+  id Int @id @default(autoincrement())
+
+  name         String
+  description  String
+  cost         String
+  armorClass   ArmorClass      @relation(fields: [armorClassId], references: [id])
+  armorClassId Int
+  weight       String
+  properties   ArmorProperty[]
+  Character    Character[]
+}
+
+model ArmorClass {
+  id Int @id @default(autoincrement())
+
+  name        String
+  description String
+  Don         String
+  Doff        String
+  Armor       Armor[]
+}
+
+model ArmorProperty {
+  id Int @id @default(autoincrement())
+
+  name        String
+  description String
+  Armor       Armor[]
+}
+
+model Weapon {
+  id Int @id @default(autoincrement())
+
+  name       String
+  type       WeaponType       @relation(fields: [typeId], references: [id])
+  typeId     Int
+  properties WeaponProperty[]
+  cost       String
+  damage     String
+  weight     String
+
+  rangeNormal Int?
+  rangeLong   Int?
+
+  source String? // gonna see if this is even used, mostly for the GM
+
+  Character Character[]
+}
+
+model WeaponType {
+  id Int @id @default(autoincrement())
+
+  name        String
+  description String
+  Weapon      Weapon[]
+}
+
+model WeaponProperty {
+  id Int @id @default(autoincrement())
+
+  name          String
+  description   String
+  requiredSkill Int? // If the weapon requires a skill to use, this number defines the minimum level
+
+  Weapon Weapon[]
+}
+
+model Equipment {
+  id Int @id @default(autoincrement())
+
+  name        String
+  category    String
+  cost        String
+  weight      String
+  description String
+  Character   Character[]
 }
 
 model ForcePower {
   id Int @id @default(autoincrement())
 
-  // As I still need to implement Force Power Trees, I'll just leave this as a string for now
+  name          String
+  description   String
+  castingTime   String
+  range         String
+  duration      String
+  prerequisites String
+  forcePotency  String
+
+  minimumLevel Int
+  Character    Character[]
+}
+
+model TechPower {
+  id Int @id @default(autoincrement())
+
   name        String
   description String
+  castingTime String
+  range       String
+  duration    String
+  overcharge  String
 
-  Character   Character? @relation(fields: [characterId], references: [id])
-  characterId String?    @unique
+  minimumLevel Int
+  Character    Character[]
+}
+
+model Maneuver {
+  id Int @id @default(autoincrement())
+
+  name          String
+  description   String
+  prerequisites String
+  type          String
 }
